@@ -27,3 +27,15 @@ Plugin 'scrooloose/syntastic'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
+
+if &t_Co > 2 || has("gui_running")
+   " Switch on highlighting the last used search pattern.
+   set hlsearch
+ endif
+
+" Have Vim jump to the last position when
+" reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g'\"" | endif
+endif
