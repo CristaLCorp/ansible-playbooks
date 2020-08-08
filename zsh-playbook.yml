@@ -76,3 +76,11 @@
             zsh-syntax-highlighting
             zsh-autosuggestions
           )
+          
+    - name: ZSH settings
+      blockinfile:
+        path: ~/.zshrc
+        insertbefore: BOF
+        block: |
+          export TERM="xterm-256color"
+          HISTSIZE=100000
