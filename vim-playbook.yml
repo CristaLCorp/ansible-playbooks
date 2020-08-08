@@ -1,0 +1,27 @@
+---
+- name: Install and configure VIM
+  hosts: nodes
+  tasks:
+
+    - name: Installing Git and vim
+      become: yes
+      apt:
+        pkg:
+          - git
+          - vim
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Clone Vundle
+      git:
+        repo: 'https://github.com/VundleVim/Vundle.vim.git'
+        dest: ~/.vim/bundle/Vundle.vim
+
+    - name: Download .vimrc
+      get_url:
+        url: https://raw.githubusercontent.com/CristaLCorp/ansible-playbooks/master/.vimrc
+        dest: ~/
+
+    - name: Install vim plugins
+      command: vim +PluginInstall +qall
