@@ -1,0 +1,51 @@
+---
+- name: System set up
+  hosts: nodes
+  become: yes
+  tasks:
+
+    - name: Adding Kubernetes signing key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Adding Kubernetes repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+
+    - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+      shell: |
+          swapoff -a
+
+    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
+    - name: Installing Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Enabling Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+        masked: no
+
+    - name: Installing Kubernetes and tools
+      apt:
+        pkg:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - kubernetes-cni
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
