@@ -1,2 +1,10 @@
-[group]
-username@127.0.0.1
+[master]
+username@10.20.30.101
+
+[workers]
+username@10.20.30.[102:103]
+
+
+[nodes:children]
+master
+workers
