@@ -1,0 +1,22 @@
+---
+- name: Set up the master node
+  hosts: master
+  tasks:
+
+    - name: Create .kube directory
+      file:
+        path: /home/{{ ansible_user }}/.kube
+        state: directory
+        mode: '0755'
+
+    - name: Copy Kubernetes admin.config to user .kube folder
+      become: yes
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/{{ ansible_user }}/.kube/config
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+        remote_src: yes
+
+    - name: Fixing the flannel
