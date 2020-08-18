@@ -73,6 +73,7 @@
             history
             catimg
             encode64
+            kubectl
             zsh-syntax-highlighting
             zsh-autosuggestions
           )
