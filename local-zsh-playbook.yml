@@ -1,0 +1,88 @@
+---
+- hosts: localhost
+  become: false
+  connection: local
+  gather_facts: true
+
+    - name: Installing Git Zsh and Python3
+      become: yes
+      apt:
+        pkg:
+          - git
+          - zsh
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Pip install pexpect
+      pip:
+        name: pexpect
+
+    - name: Download Oh-My-Zsh
+      get_url:
+        url: https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+        dest: ~/
+
+    - name: Remove Oh-My-Zsh folder
+      file:
+        state: absent
+        path: ~/.oh-my-zsh/
+
+    - name: Install Oh-My-Zsh
+      expect:
+        command: sh install.sh --unattended
+        responses:
+          (?i)zsh? [Y/n]: Y
+
+    - name: Make ZSH the default shell
+      become: yes
+      user:
+        name: "{{ ansible_user }}"
+        shell: /usr/bin/zsh
+
+    - name: Clone PowerLevel9k
+      git:
+        repo: 'https://github.com/bhilburn/powerlevel9k.git'
+        dest: ~/.oh-my-zsh/custom/themes/powerlevel9k
+
+    - name: Using PowerLevel9k as ZSH theme
+      lineinfile:
+        path: ~/.zshrc
+        regexp: '^ZSH_THEME='
+        line: ZSH_THEME="powerlevel9k/powerlevel9k"
+
+    - name: Clone zsh-syntax-highlighting
+      git:
+        repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git'
+        dest: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+    - name: Clone zsh-autosuggestions
+      git:
+        repo: 'https://github.com/zsh-users/zsh-autosuggestions'
+        dest: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+
+    - name: Add ZSH plugins
+      lineinfile:
+        path: ~/.zshrc
+        regexp: '^plugins='
+        line: |
+          plugins=(
+            git
+            colored-man-pages
+            history
+            catimg
+            encode64
+            kubectl
+            zsh-syntax-highlighting
+            zsh-autosuggestions
+          )
+          
+    - name: ZSH settings
+      blockinfile:
+        path: ~/.zshrc
+        insertbefore: BOF
+        block: |
+          export TERM="xterm-256color"
+          HISTSIZE=100000
